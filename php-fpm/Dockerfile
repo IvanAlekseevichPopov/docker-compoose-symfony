@@ -3,8 +3,9 @@ FROM php:7.1-fpm
 
 MAINTAINER Ivan Popov <ivan.alekseevich.popov@gmail.com>
 
-RUN apt-get update; \
-    apt-get install -y git unzip npm
+# File permissions
+ARG PARENT_USER_ID
+RUN usermod -u $PARENT_USER_ID www-data
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
@@ -24,6 +25,6 @@ RUN pecl install xdebug redis; \
 RUN echo 'alias sf="php app/console"' >> ~/.bashrc; \
     echo 'alias sf3="php bin/console"' >> ~/.bashrc
 
-
-
 WORKDIR /var/www/symfony
+
+USER www-data
