@@ -1,0 +1,10 @@
+.env
+/data/db/*
+/data/elasticsearch/*
+/data/redis/*
+/data/symfony/*
+
+/logs/nginx/*
+/logs/redis/*
+/logs/symfony/*
+/logs/elasticsearch/*

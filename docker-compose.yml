@@ -1,0 +1,85 @@
+version: '2'
+
+services:
+    db:
+        image: mariadb
+        environment:
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+            MYSQL_DATABASE: ${MYSQL_DATABASE}
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+        volumes:
+            - "./mariadb/conf:/etc/mysql/conf.d"
+            - "${MYSQL_DATA_PATH}:/var/lib/mysql"
+        ports:
+            - 3306:3306
+    elasticsearch:
+        build: elasticsearch
+        volumes:
+            - "${ELASTIC_DATA_PATH}:/usr/share/elasticsearch/data"
+        ports:
+            - 9200:9200
+            - 9300:9300
+    redis_6379:
+        image: redis
+        ports:
+          - "6379:6379"
+        volumes:
+            - ./redis/6379.conf:/usr/local/etc/redis/redis.conf
+            - "./data/redis/6379:/data"
+#            - "./logs/redis/6379:/var/log"
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "200k"
+                max-file: "10"
+        command: "redis-server /usr/local/etc/redis/redis.conf"
+    redis_6380:
+        image: redis
+        ports:
+          - "6380:6380"
+        volumes:
+          - ./redis/6380.conf:/usr/local/etc/redis/redis.conf
+          - "./data/redis/6380:/data"
+#          - "./logs/redis/6380:/var/log"
+        command: "redis-server /usr/local/etc/redis/redis.conf"
+    redis_6390:
+        image: redis
+        ports:
+          - "6390:6390"
+        volumes:
+          - ./redis/6390.conf:/usr/local/etc/redis/redis.conf
+          - "./data/redis/6390:/data"
+#          - "./logs/redis/6390:/var/log"
+        command: "redis-server /usr/local/etc/redis/redis.conf"
+    php:
+        build: php-fpm
+        volumes:
+            - ${SYMFONY_APP_PATH}:/var/www/symfony
+            - ./logs/symfony:/var/www/symfony/app/logs
+            - ./data/symfony/sessions:/var/www/symfony/var/sessions
+            - ./php-fpm/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+        ports:
+#            - "3000:3000"
+            - "9000:9000"
+#        command: ["php-fpm", "npm run start"]
+    node:
+        build: node
+        volumes:
+            - "${SYMFONY_APP_PATH}:/usr/src/app"
+        ports:
+            - "3000:3000"
+        command: "npm run start"
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        ports:
+            - "8080:80"
+    nginx:
+        build: nginx
+        ports:
+            - 80:80
+            - 443:443
+        volumes_from:
+            - php
+        volumes:
+            - ./logs/nginx/:/var/log/nginx
