@@ -19,6 +19,9 @@ services:
             dockerfile: ./Dockerfile
             args:
                 - PARENT_USER_ID=${PARENT_USER_ID}
+        environment:
+            ELASTICSEARCH_VERSION: 2.4.5
+            ELASTICSEARCH_DEB_VERSION: 2.4.5
         volumes:
             - "${ELASTIC_DATA_PATH}:/usr/share/elasticsearch/data"
         ports:
