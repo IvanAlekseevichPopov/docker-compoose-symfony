@@ -1,4 +1,3 @@
-!logs/symfony/.gitkeep
 .env
 .idea
 /data/db/*
@@ -10,3 +9,4 @@
 /logs/redis/*
 /logs/symfony/*
 /logs/elasticsearch/*
+!logs/symfony/.gitkeep
