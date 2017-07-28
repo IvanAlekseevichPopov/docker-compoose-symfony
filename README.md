@@ -1,17 +1,6 @@
-# Docker Symfony (PHP7.1-FPM - NGINX - Mariadb - Easticsearch - Redis)
+# Docker Symfony (Php-fpm - Nginx - Mariadb - Easticsearch - Redis)
 
 ## Installation
-0. Если необходимо перенести данные из существующего окружения:
-
-    Mariadb (проверьте пути на локальной машине):
-    ```bash
-    sudo cp -r /var/lib/mysql ./data/db
-    ```
-    Elasticsearch (проверьте пути на локальной машине):
-    ```bash
-    sudo cp -r /var/lib/elasticsearchk ./data/db
-    ```
-
 1. Create a `.env` from the `.env.dist` file. Adapt it according to your symfony application
 
     ```bash
@@ -24,57 +13,40 @@
     $ docker-compose build
     $ docker-compose up -d
     ```
-
-3. Update your system host file (add symfony.dev)
-
-    ```bash
-    # UNIX only: get containers IP address and update host (replace IP according to your configuration)
-    $ docker network inspect bridge | grep Gateway
-
-    # unix only (on Windows, edit C:\Windows\System32\drivers\etc\hosts)
-    $ sudo echo "171.17.0.1 symfony.dev" >> /etc/hosts
-    ```
-
-    **Note:** For **OS X**, please take a look [here](https://docs.docker.com/docker-for-mac/networking/) and for **Windows** read [this](https://docs.docker.com/docker-for-windows/#/step-4-explore-the-application-and-run-examples) (4th step).
-
-4. Prepare Symfony app
+3. Prepare Symfony app
     1. Update app/config/parameters.yml
 
         ```yml
         # path/to/your/symfony-project/app/config/parameters.yml
         parameters:
             database_host: db
+        ...
+        elastic_clients:
+                servers:
+                    - { host: elasticsearch, port: 9200 }
+        ...
+        redis_sessions_dsn: 'redis://redis_6380:6380/2'
+        ...
+        redis_config_master_dsn: 'redis://redis_6390:6390'
+        redis_config_slave_dsn: 'redis://redis_6379:6379'
         ```
 
-    2. Composer install & create database
-
-        ```bash
-        $ docker-compose exec php bash
-        $ composer install
-        # Symfony2
-        $ sf doctrine:database:create
-        $ sf doctrine:schema:update --force
-        $ sf doctrine:fixtures:load --no-interaction
-        # Symfony3
-        $ sf3 doctrine:database:create
-        $ sf3 doctrine:schema:update --force
-        $ sf3 doctrine:fixtures:load --no-interaction
+    2. 
+    
+4. Move your data to containers
+    1. MariaDB (check your oun paths on host machine):
+        ``` bash
+        cp /source_sql_dump_path/dump.sql ./mariadb/conf/
+        docker-compose exec db /bin/bash
+            #This actions inside container
+            mysql -pYOUR_ROOT_PASS DATABASE_NAME < /etc/mysql/conf.d/dump.sql
+            exit            
         ```
-
+    2. Elasticsearch (check your oun paths on host machine):
+       ```bash
+       sudo cp -r /var/lib/elasticsearchk ./data/db
+       ```
 5. Enjoy :-)
-
-## Usage
-
-Just run `docker-compose up -d`, then:
-
-* Symfony app: visit [symfony.dev](http://symfony.dev)  
-* Symfony dev mode: visit [symfony.dev/app_dev.php](http://symfony.dev/app_dev.php)  
-* Logs (Kibana): [symfony.dev:81](http://symfony.dev:81)
-* Logs (files location): logs/nginx and logs/symfony
-
-## Customize
-
-If you want to add optionnals containers like Redis, PHPMyAdmin... take a look on [doc/custom.md](doc/custom.md).
 
 ## How it works?
 
@@ -83,19 +55,44 @@ Have a look at the `docker-compose.yml` file, here are the `docker-compose` buil
 * `db`: This is the MySQL database container,
 * `php`: This is the PHP-FPM container in which the application volume is mounted,
 * `nginx`: This is the Nginx webserver container in which application volume is mounted too,
-* `elk`: This is a ELK stack container which uses Logstash to collect logs, send them into Elasticsearch and visualize them with Kibana.
+* `elasticsearch`: This is a elasticsearch 2.4.5 container
+* `node`: This is a nodejs container to build React
+* `redis_*`: This is redis container
+* `phpmyadmin`: This is container with phpMyAdmin panel
+
 
 This results in the following running containers:
 
 ```bash
 $ docker-compose ps
-           Name                          Command               State              Ports            
---------------------------------------------------------------------------------------------------
-dockersymfony_db_1            /entrypoint.sh mysqld            Up      0.0.0.0:3306->3306/tcp      
-dockersymfony_elk_1           /usr/bin/supervisord -n -c ...   Up      0.0.0.0:81->80/tcp          
-dockersymfony_nginx_1         nginx                            Up      443/tcp, 0.0.0.0:80->80/tcp
-dockersymfony_php_1           php-fpm                          Up      0.0.0.0:9000->9000/tcp      
+            Name                           Command               State                       Ports                     
+-----------------------------------------------------------------------------------------------------------------------
+dockersymfony_db_1              docker-entrypoint.sh mysqld      Up      0.0.0.0:3306->3306/tcp                        
+dockersymfony_elasticsearch_1   /docker-entrypoint.sh elas ...   Up      0.0.0.0:9200->9200/tcp, 0.0.0.0:9300->9300/tcp
+dockersymfony_nginx_1           nginx                            Up      0.0.0.0:443->443/tcp, 0.0.0.0:80->80/tcp      
+dockersymfony_node_1            npm run start                    Up      0.0.0.0:3000->3000/tcp                        
+dockersymfony_php_1             docker-php-entrypoint php-fpm    Up      9000/tcp                                      
+dockersymfony_phpmyadmin_1      /run.sh phpmyadmin               Up      0.0.0.0:8080->80/tcp                          
+dockersymfony_redis_6379_1      docker-entrypoint.sh redis ...   Up      0.0.0.0:6379->6379/tcp                        
+dockersymfony_redis_6380_1      docker-entrypoint.sh redis ...   Up      6379/tcp, 0.0.0.0:6380->6380/tcp              
+dockersymfony_redis_6390_1      docker-entrypoint.sh redis ...   Up      6379/tcp, 0.0.0.0:6390->6390/tcp        
 ```
+OR
+```bash
+[ivan@fedora docker-symfony]$ docker ps --format "table {{.ID}}\t{{.Names}}\t{{.Image}}\t{{.Ports}}\t{{.Status}}"
+CONTAINER ID        NAMES                           IMAGE                         PORTS                                            STATUS
+7c3cc9071f1b        dockersymfony_nginx_1           dockersymfony_nginx           0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp         Up 47 minutes
+471f94a60b40        dockersymfony_node_1            dockersymfony_node            0.0.0.0:3000->3000/tcp                           Up 47 minutes
+64c90813e300        dockersymfony_redis_6380_1      redis                         6379/tcp, 0.0.0.0:6380->6380/tcp                 Up 47 minutes
+c37d6e3b41ec        dockersymfony_db_1              mariadb:10.1                  0.0.0.0:3306->3306/tcp                           Up 47 minutes
+421bf4633b2a        dockersymfony_php_1             dockersymfony_php             9000/tcp                                         Up 47 minutes
+6734114971ed        dockersymfony_redis_6390_1      redis                         6379/tcp, 0.0.0.0:6390->6390/tcp                 Up 47 minutes
+ad5d8b1297fd        dockersymfony_phpmyadmin_1      phpmyadmin/phpmyadmin         0.0.0.0:8080->80/tcp                             Up 47 minutes
+531ed2066f6a        dockersymfony_elasticsearch_1   dockersymfony_elasticsearch   0.0.0.0:9200->9200/tcp, 0.0.0.0:9300->9300/tcp   Up 47 minutes
+0b1b02b4a07a        dockersymfony_redis_6379_1      redis                         0.0.0.0:6379->6379/tcp                           Up 47 minutes
+[ivan@fedora docker-symfony]$ 
+```
+
 
 ## Useful commands
 
@@ -120,10 +117,6 @@ $ docker inspect $(docker ps -f name=nginx -q) | grep IPAddress
 # MySQL commands
 $ docker-compose exec db mysql -uroot -p"root"
 
-# F***ing cache/logs folder
-$ sudo chmod -R 777 app/cache app/logs # Symfony2
-$ sudo chmod -R 777 var/cache var/logs # Symfony3
-
 # Check CPU consumption
 $ docker stats $(docker inspect -f "{{ .Name }}" $(docker ps -q))
 
@@ -133,21 +126,3 @@ $ docker rm $(docker ps -aq)
 # Delete all images
 $ docker rmi $(docker images -q)
 ```
-
-## FAQ
-
-* Got this error: `ERROR: Couldn't connect to Docker daemon at http+docker://localunixsocket - is it running?
-If it's at a non-standard location, specify the URL with the DOCKER_HOST environment variable.` ?  
-Run `docker-compose up -d` instead.
-
-* Permission problem? See [this doc (Setting up Permission)](http://symfony.com/doc/current/book/installation.html#checking-symfony-application-configuration-and-setup)
-
-* How to config Xdebug?
-Xdebug is configured out of the box!
-Just config your IDE to connect port  `9001` and id key `PHPSTORM`
-
-## Contributing
-
-First of all, **thank you** for contributing ♥  
-If you find any typo/misconfiguration/... please send me a PR or open an issue. You can also ping me on [twitter](https://twitter.com/_maxpou).  
-Also, while creating your Pull Request on GitHub, please write a description which gives the context and/or explains why you are creating it.

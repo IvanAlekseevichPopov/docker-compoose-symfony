@@ -2,7 +2,7 @@ version: '2'
 
 services:
     db:
-        image: mariadb
+        image: mariadb:10.1
         environment:
             MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
             MYSQL_DATABASE: ${MYSQL_DATABASE}
@@ -25,8 +25,8 @@ services:
         ports:
           - "6379:6379"
         volumes:
-            - ./redis/6379.conf:/usr/local/etc/redis/redis.conf
-            - "./data/redis/6379:/data"
+            - "./redis/6379.conf:/usr/local/etc/redis/redis.conf"
+            - "${REDIS_DATA_PATH}/6379:/data"
 #            - "./logs/redis/6379:/var/log"
         logging:
             driver: "json-file"
@@ -39,8 +39,8 @@ services:
         ports:
           - "6380:6380"
         volumes:
-          - ./redis/6380.conf:/usr/local/etc/redis/redis.conf
-          - "./data/redis/6380:/data"
+          - "./redis/6380.conf:/usr/local/etc/redis/redis.conf"
+          - "${REDIS_DATA_PATH}/6380:/data"
 #          - "./logs/redis/6380:/var/log"
         command: "redis-server /usr/local/etc/redis/redis.conf"
     redis_6390:
@@ -48,8 +48,8 @@ services:
         ports:
           - "6390:6390"
         volumes:
-          - ./redis/6390.conf:/usr/local/etc/redis/redis.conf
-          - "./data/redis/6390:/data"
+          - "./redis/6390.conf:/usr/local/etc/redis/redis.conf"
+          - "${REDIS_DATA_PATH}/6390:/data"
 #          - "./logs/redis/6390:/var/log"
         command: "redis-server /usr/local/etc/redis/redis.conf"
     php:
@@ -59,16 +59,17 @@ services:
             args:
                 - PARENT_USER_ID=${PARENT_USER_ID}
         volumes:
-            - ${SYMFONY_APP_PATH}:/var/www/symfony
-            - ./logs/symfony:/var/www/symfony/app/logs
-            - ./data/symfony/sessions:/var/www/symfony/var/sessions
-            - ./php-fpm/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-        ports:
-#            - "3000:3000"
-            - "9000:9000"
-#        command: ["php-fpm", "npm run start"]
+            - "${SYMFONY_APP_PATH}:/var/www/symfony"
+            - "./logs/symfony:/var/www/symfony/app/logs"
+            - "./data/symfony/sessions:/var/www/symfony/var/sessions"
+            - "./php-fpm/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini"
     node:
         build: node
+        build:
+            context: ./node/
+            dockerfile: ./Dockerfile
+            args:
+                - PARENT_USER_ID=${PARENT_USER_ID}
         volumes:
             - "${SYMFONY_APP_PATH}:/usr/src/app"
         ports:
@@ -79,7 +80,11 @@ services:
         ports:
             - "8080:80"
     nginx:
-        build: nginx
+        build:
+            context: ./nginx/
+            dockerfile: ./Dockerfile
+            args:
+                - PARENT_USER_ID=${PARENT_USER_ID}
         environment:
             PARENT_USER_ID: ${PARENT_USER_ID}
         ports:
