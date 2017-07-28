@@ -1,3 +1,4 @@
+!logs/symfony/.gitkeep
 .env
 .idea
 /data/db/*
