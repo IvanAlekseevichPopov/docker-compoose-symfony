@@ -10,3 +10,7 @@
 /logs/symfony/*
 /logs/elasticsearch/*
 !logs/symfony/.gitkeep
+!/data/elasticsearch/.gitkeep
+!/data/redis/.gitkeep
+!/data/symfony/.gitkeep
+!/data/db/.gitkeep
