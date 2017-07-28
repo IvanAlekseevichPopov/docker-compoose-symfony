@@ -14,7 +14,11 @@ services:
         ports:
             - 3306:3306
     elasticsearch:
-        build: elasticsearch
+        build:
+            context: ./elasticsearch/
+            dockerfile: ./Dockerfile
+            args:
+                - PARENT_USER_ID=${PARENT_USER_ID}
         volumes:
             - "${ELASTIC_DATA_PATH}:/usr/share/elasticsearch/data"
         ports:

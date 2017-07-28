@@ -63,6 +63,10 @@ VOLUME /usr/share/elasticsearch/data
 
 COPY docker-entrypoint.sh /
 
+# File permissions
+ARG PARENT_USER_ID
+RUN usermod -u $PARENT_USER_ID elasticsearch
+
 EXPOSE 9200 9300
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["elasticsearch"]

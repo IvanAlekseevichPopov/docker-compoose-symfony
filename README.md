@@ -42,10 +42,9 @@
             exit
         rm -f ./mariadb/conf/dump.sql
         ```
-        тут проблемы с правами на эластик
     2. Elasticsearch (check your oun paths on host machine):
        ```bash
-       cp -r /var/lib/elasticsearch ./data/
+       rm -rf ./data/elasticsearch; cp -r /var/lib/elasticsearch ./data/
        ```
 5. Enjoy :-)
 
