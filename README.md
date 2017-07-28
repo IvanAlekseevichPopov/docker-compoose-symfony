@@ -26,7 +26,6 @@
                     - { host: elasticsearch, port: 9200 }
         ...
         redis_sessions_dsn: 'redis://redis_6380:6380/2'
-        ...
         redis_config_master_dsn: 'redis://redis_6390:6390'
         redis_config_slave_dsn: 'redis://redis_6379:6379'
         ```
@@ -37,14 +36,16 @@
     1. MariaDB (check your oun paths on host machine):
         ``` bash
         cp /source_sql_dump_path/dump.sql ./mariadb/conf/
-        docker-compose exec db /bin/bash
+        docker-compose exec db /bin/bash #Enter to database container
             #This actions inside container
             mysql -pYOUR_ROOT_PASS DATABASE_NAME < /etc/mysql/conf.d/dump.sql
-            exit            
+            exit
+        rm -f ./mariadb/conf/dump.sql
         ```
+        тут проблемы с правами на эластик
     2. Elasticsearch (check your oun paths on host machine):
        ```bash
-       sudo cp -r /var/lib/elasticsearchk ./data/db
+       cp -r /var/lib/elasticsearch ./data/
        ```
 5. Enjoy :-)
 
@@ -52,7 +53,7 @@
 
 Have a look at the `docker-compose.yml` file, here are the `docker-compose` built images:
 
-* `db`: This is the MySQL database container,
+* `db`: This is the MariaDB database container,
 * `php`: This is the PHP-FPM container in which the application volume is mounted,
 * `nginx`: This is the Nginx webserver container in which application volume is mounted too,
 * `elasticsearch`: This is a elasticsearch 2.4.5 container
