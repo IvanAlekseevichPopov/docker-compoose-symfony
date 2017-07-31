@@ -31,4 +31,4 @@ RUN rm /etc/localtime; \
 
 WORKDIR /var/www/symfony
 
-#USER www-data
+USER www-data
