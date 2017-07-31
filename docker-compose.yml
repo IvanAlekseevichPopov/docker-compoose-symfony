@@ -35,11 +35,11 @@ services:
             - "./redis/6379.conf:/usr/local/etc/redis/redis.conf"
             - "${REDIS_DATA_PATH}/6379:/data"
 #            - "./logs/redis/6379:/var/log"
-        logging:
-            driver: "json-file"
-            options:
-                max-size: "200k"
-                max-file: "10"
+#        logging:
+#            driver: "json-file"
+#            options:
+#                max-size: "200k"
+#                max-file: "10"
         command: "redis-server /usr/local/etc/redis/redis.conf"
     redis_6380:
         image: redis

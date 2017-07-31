@@ -1,7 +1,47 @@
 # Docker Symfony (Php-fpm - Nginx - Mariadb - Easticsearch - Redis)
 
 ## Installation
-1. Create a `.env` from the `.env.dist` file. Adapt it according to your symfony application
+0. If you do not install docker-compose short instruction here - [doc/docker.md](doc/docker.md).
+
+1. Clone this repository and change folder to project root: 
+
+    ```bash
+    git clone git@github.com:IvanAlekseevichPopov/docker-compoose-symfony.git
+    cd docker-compoose-symfony
+    ```
+
+2. Check, that ports, used in project are not busy:
+    1. Check
+        ```bash
+        sudo nmap -sS -O -p80,443,8080,6379,6380,6390,9200,9300,3306 localhost | grep open
+        80/tcp   open  http
+        443/tcp  open  https
+        3306/tcp open  mysql
+        6379/tcp open  redis
+        6380/tcp open  unknown
+        6390/tcp open  metaedit-ws
+        8080/tcp open  http-proxy
+        9200/tcp open  wap-wsp
+        9300/tcp open  vrace
+        #If one of this ports is open - disable corresponding service
+        ``` 
+    2. Disable services, if necessary:
+        1. Ubuntu/Debian:
+        ```bash
+        #To stop
+        systemctl stop elasticsearch redis_6379 redis_6380 redis_6390 nginx mysq
+        #To disable autoload
+        systemctl disable elasticsearch redis_6379 redis_6380 redis_6390 nginx mysq
+        ```
+        2. Fedora/Centos:
+        ```bash
+        #To stop
+        systemctl stop elasticsearch redis_6379 redis_6380 redis_6390 nginx mariadb
+        #To disable autoload
+        systemctl disable elasticsearch redis_6379 redis_6380 redis_6390 nginx mariadb
+        ```
+
+1. Create a `.env` from the `.env.dist` file. DO NOT FORGOT to adapt it according to your symfony application
 
     ```bash
     cp .env.dist .env
