@@ -3,9 +3,24 @@ FROM php:7.1-fpm
 
 MAINTAINER Ivan Popov <ivan.alekseevich.popov@gmail.com>
 
+RUN echo $UID
+RUN echo $UID
 # File permissions
 ARG PARENT_USER_ID
 RUN usermod -u $PARENT_USER_ID www-data
+
+# Type docker-php-ext-install to see available extensions
+RUN docker-php-ext-install pdo pdo_mysql
+
+# install xdebug redis extentions
+RUN apt-get update; \
+    apt-get install -y libmagickwand-dev imagemagick; \
+    pecl install xdebug redis imagick; \
+    docker-php-ext-enable xdebug; \
+    docker-php-ext-enable redis
+
+ADD xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+RUN echo "extension=imagick.so" > /usr/local/etc/php/conf.d/docker-php-ext-imagic.ini
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
@@ -14,17 +29,6 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN rm /etc/localtime; \
     ln -s /usr/share/zoneinfo/Europe/Moscow /etc/localtime
 
-# Type docker-php-ext-install to see available extensions
-RUN docker-php-ext-install pdo pdo_mysql mbstring
-
-# install xdebug redis extentions
-RUN pecl install xdebug redis; \
-    docker-php-ext-enable xdebug; \
-    docker-php-ext-enable redis
-
-RUN echo 'alias sf="php app/console"' >> ~/.bashrc; \
-    echo 'alias sf3="php bin/console"' >> ~/.bashrc
-
 WORKDIR /var/www/symfony
 
-USER www-data
+#USER www-data

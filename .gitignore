@@ -9,7 +9,7 @@
 /logs/redis/*
 /logs/symfony/*
 /logs/elasticsearch/*
-/mariadb/conf/*dump*
+/mariadb/conf/*.sql
 
 !logs/symfony/.gitkeep
 !/data/elasticsearch/.gitkeep

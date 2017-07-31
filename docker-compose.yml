@@ -67,8 +67,8 @@ services:
                 - PARENT_USER_ID=${PARENT_USER_ID}
         volumes:
             - "${SYMFONY_APP_PATH}:/var/www/symfony"
-            - "./logs/symfony:/var/www/symfony/app/logs"
-            - "./data/symfony/sessions:/var/www/symfony/var/sessions"
+#            - "./logs/symfony:/var/www/symfony/app/logs"
+#            - "./data/symfony/sessions:/var/www/symfony/var/sessions"
             - "./php-fpm/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini"
     node:
         build: node

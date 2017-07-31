@@ -1,8 +1,42 @@
-# Docker Symfony (Php-fpm - Nginx - Mariadb - Easticsearch - Redis)
+# Docker Symfony (Php-fpm - Nginx - Mariadb - Easticsearch - Redis - Nodejs)
 
-## Installation
-0. If you do not install docker-compose short instruction here - [doc/docker.md](doc/docker.md).
+### Docker installation(If you have not yet installed docker-compose)
+1. Install docker and docker-compose packages for your OS.
+    1. Ubuntu/Debian:
 
+    ```bash
+       sudo apt-get install docker docker-compose nmap
+    ```
+    2. Fedora/Centos:
+
+    ```bash
+       sudo dnf install docker docker-compose
+    ```
+
+2. For Ubuntu/Debian you need to fill /etc/resolv.conf with actual DNS servers
+(it needs for correct work of docker internal network)
+
+    ```bash
+       sudo bash -c 'echo "nameserver REPLACE_WITH_YOUR_DNS_SERVER_IP" >> /etc/resolv.conf'
+    ```
+    
+3. Add your user to docker group for access to docker commands without sudo:
+
+    ```bash
+       sudo groupadd docker
+       sudo usermod -aG docker $USER
+    ```
+
+4. Enable docker service:
+
+    ```bash
+       sudo systemctl enable docker
+       sudo systemctl start docker
+    ```
+    
+5. Log out and log back in so that your group membership is re-evaluated.
+
+### Project installation
 1. Clone this repository and change folder to project root: 
 
     ```bash
@@ -11,11 +45,12 @@
     ```
 
 2. Check, that ports, used in project are not busy:
-    1. Check
+    1. Check with nmap (or use telnet):
         ```bash
-        sudo nmap -sS -O -p80,443,8080,6379,6380,6390,9200,9300,3306 localhost | grep open
+        sudo nmap -sS -O -p80,443,8080,6379,6380,6390,9200,9300,3306,3000 localhost | grep open
         80/tcp   open  http
         443/tcp  open  https
+        3000/tcp open  ppp
         3306/tcp open  mysql
         6379/tcp open  redis
         6380/tcp open  unknown
@@ -24,12 +59,13 @@
         9200/tcp open  wap-wsp
         9300/tcp open  vrace
         #If one of this ports is open - disable corresponding service
+        #on port 3000 - close running npm server
         ``` 
     2. Disable services, if necessary:
         1. Ubuntu/Debian:
         ```bash
         #To stop
-        systemctl stop elasticsearch redis_6379 redis_6380 redis_6390 nginx mysq
+        systemctl stop elasticsearch redis_6379 redis_6380 redis_6390 nginx mysql
         #To disable autoload
         systemctl disable elasticsearch redis_6379 redis_6380 redis_6390 nginx mysq
         ```
@@ -41,10 +77,15 @@
         systemctl disable elasticsearch redis_6379 redis_6380 redis_6390 nginx mariadb
         ```
 
-1. Create a `.env` from the `.env.dist` file. DO NOT FORGOT to adapt it according to your symfony application
+1. Create a `.env` from the `.env.dist` file:
 
     ```bash
     cp .env.dist .env
+    ```
+    DO NOT FORGOT to adapt it according to your symfony application
+    ```bash
+    nano .env
+    #nano is peace of shit, use vim )
     ```
 
 2. Build/run containers with (with and without detached mode)
@@ -60,6 +101,10 @@
         # path/to/your/symfony-project/app/config/parameters.yml
         parameters:
             database_host: db
+            database_port: 3306
+            database_name: dionis
+            database_user: dionis_user
+            database_password: pass
         ...
         elastic_clients:
                 servers:
@@ -73,19 +118,23 @@
     2. 
     
 4. Move your data to containers
-    1. MariaDB (check your oun paths on host machine):
-        ``` bash
-        cp /source_sql_dump_path/dump.sql ./mariadb/conf/
-        docker-compose exec db /bin/bash #Enter to database container
-            #This actions inside container
-            mysql -pYOUR_ROOT_PASS DATABASE_NAME < /etc/mysql/conf.d/dump.sql
-            exit
-        rm -f ./mariadb/conf/dump.sql
-        ```
-    2. Elasticsearch (check your oun paths on host machine):
+    1. Elasticsearch (check your oun paths on host machine):
        ```bash
        rm -rf ./data/elasticsearch; cp -r /var/lib/elasticsearch ./data/
        ```
+    2. MariaDB (check your oun paths on host machine):
+        ``` bash
+        cp /source_sql_dump_path/YOUR_MYSQL_DUMP_NAME.sql ./mariadb/conf/
+        docker-compose exec db /bin/bash #Enter to database container
+            #This actions inside container
+            mysql -pYOUR_ROOT_PASS DATABASE_NAME < /etc/mysql/conf.d/YOUR_MYSQL_DUMP_NAME.sql
+            exit
+        rm -f ./mariadb/conf/dump.sql
+        ```
+    3. If you need, make migrations:
+        ``` bash
+        docker-compose exec php app/console d:m:m
+        ```
 5. Enjoy :-)
 
 ## How it works?
@@ -97,7 +146,7 @@ Have a look at the `docker-compose.yml` file, here are the `docker-compose` buil
 * `nginx`: This is the Nginx webserver container in which application volume is mounted too,
 * `elasticsearch`: This is a elasticsearch 2.4.5 container
 * `node`: This is a nodejs container to build React
-* `redis_*`: This is redis container
+* `redis_*`: This is redis containers
 * `phpmyadmin`: This is container with phpMyAdmin panel
 
 
@@ -105,6 +154,7 @@ This results in the following running containers:
 
 ```bash
 $ docker-compose ps
+
             Name                           Command               State                       Ports                     
 -----------------------------------------------------------------------------------------------------------------------
 dockersymfony_db_1              docker-entrypoint.sh mysqld      Up      0.0.0.0:3306->3306/tcp                        
@@ -119,7 +169,8 @@ dockersymfony_redis_6390_1      docker-entrypoint.sh redis ...   Up      6379/tc
 ```
 OR
 ```bash
-[ivan@fedora docker-symfony]$ docker ps --format "table {{.ID}}\t{{.Names}}\t{{.Image}}\t{{.Ports}}\t{{.Status}}"
+$ docker ps --format "table {{.ID}}\t{{.Names}}\t{{.Image}}\t{{.Ports}}\t{{.Status}}"
+
 CONTAINER ID        NAMES                           IMAGE                         PORTS                                            STATUS
 7c3cc9071f1b        dockersymfony_nginx_1           dockersymfony_nginx           0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp         Up 47 minutes
 471f94a60b40        dockersymfony_node_1            dockersymfony_node            0.0.0.0:3000->3000/tcp                           Up 47 minutes
