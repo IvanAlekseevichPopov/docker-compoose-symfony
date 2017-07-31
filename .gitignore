@@ -3,16 +3,13 @@
 /data/db/*
 /data/elasticsearch/*
 /data/redis/*
-/data/symfony/*
 
 /logs/nginx/*
+/logs/mariadb/*
 /logs/redis/*
-/logs/symfony/*
-/logs/elasticsearch/*
 /mariadb/conf/*.sql
 
-!logs/symfony/.gitkeep
 !/data/elasticsearch/.gitkeep
 !/data/redis/.gitkeep
-!/data/symfony/.gitkeep
 !/data/db/.gitkeep
+!/logs/mariadb/.gitkeep

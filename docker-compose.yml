@@ -2,7 +2,11 @@ version: '2'
 
 services:
     db:
-        image: mariadb:10.1
+        build:
+            context: ./mariadb/
+            dockerfile: ./Dockerfile
+            args:
+                - PARENT_USER_ID=${PARENT_USER_ID}
         environment:
             MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
             MYSQL_DATABASE: ${MYSQL_DATABASE}
@@ -10,6 +14,7 @@ services:
             MYSQL_PASSWORD: ${MYSQL_PASSWORD}
         volumes:
             - "./mariadb/conf:/etc/mysql/conf.d"
+            - "./logs/mariadb:/var/log/mysql/"
             - "${MYSQL_DATA_PATH}:/var/lib/mysql"
         ports:
             - 3306:3306
@@ -24,41 +29,46 @@ services:
             ELASTICSEARCH_DEB_VERSION: 2.4.5
         volumes:
             - "${ELASTIC_DATA_PATH}:/usr/share/elasticsearch/data"
+#            - "./logs/elasticsearch:/usr/share/elasticsearch/data"
         ports:
             - 9200:9200
             - 9300:9300
     redis_6379:
-        image: redis
+        build:
+            context: ./redis/
+            dockerfile: ./Dockerfile
+            args:
+                - PARENT_USER_ID=${PARENT_USER_ID}
         ports:
           - "6379:6379"
         volumes:
             - "./redis/6379.conf:/usr/local/etc/redis/redis.conf"
             - "${REDIS_DATA_PATH}/6379:/data"
-#            - "./logs/redis/6379:/var/log"
-#        logging:
-#            driver: "json-file"
-#            options:
-#                max-size: "200k"
-#                max-file: "10"
-        command: "redis-server /usr/local/etc/redis/redis.conf"
+            - "./logs/redis/6379:/var/log"
     redis_6380:
-        image: redis
+        build:
+            context: ./redis/
+            dockerfile: ./Dockerfile
+            args:
+                - PARENT_USER_ID=${PARENT_USER_ID}
         ports:
           - "6380:6380"
         volumes:
           - "./redis/6380.conf:/usr/local/etc/redis/redis.conf"
           - "${REDIS_DATA_PATH}/6380:/data"
-#          - "./logs/redis/6380:/var/log"
-        command: "redis-server /usr/local/etc/redis/redis.conf"
+          - "./logs/redis/6380:/var/log"
     redis_6390:
-        image: redis
+        build:
+            context: ./redis/
+            dockerfile: ./Dockerfile
+            args:
+                - PARENT_USER_ID=${PARENT_USER_ID}
         ports:
           - "6390:6390"
         volumes:
           - "./redis/6390.conf:/usr/local/etc/redis/redis.conf"
           - "${REDIS_DATA_PATH}/6390:/data"
-#          - "./logs/redis/6390:/var/log"
-        command: "redis-server /usr/local/etc/redis/redis.conf"
+          - "./logs/redis/6390:/var/log"
     php:
         build:
             context: ./php-fpm/
