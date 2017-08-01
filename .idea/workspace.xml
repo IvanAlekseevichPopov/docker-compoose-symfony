@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="33734d10-211d-4114-a690-83aa3ed83608" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/data/db1/mysql/column_stats.MYD" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/nginx/conf/snippet/favicon.conf" afterPath="$PROJECT_DIR$/nginx/conf/snippet/favicon.conf" />
     </list>
@@ -276,7 +275,7 @@
       <workItem from="1501508056570" duration="46000" />
       <workItem from="1501508143457" duration="18000" />
       <workItem from="1501568650083" duration="6000" />
-      <workItem from="1501589032473" duration="23000" />
+      <workItem from="1501589032473" duration="57000" />
     </task>
     <task id="LOCAL-00001" summary="draft">
       <created>1501230627638</created>
@@ -348,14 +347,21 @@
       <option name="project" value="LOCAL" />
       <updated>1501507975760</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="fix6 - nginx configs applying. Imagic add to php container">
+      <created>1501589082078</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1501589082078</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="115608000" />
+    <option name="totallyTimeSpent" value="115642000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="-37" width="1600" height="937" extended-state="0" />
+    <frame x="0" y="-37" width="1600" height="937" extended-state="6" />
     <editor active="false" />
     <layout>
       <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23260309" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" x="2206" y="46" width="227" height="788" />
