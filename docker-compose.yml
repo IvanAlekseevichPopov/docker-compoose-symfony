@@ -29,11 +29,10 @@ services:
             ELASTICSEARCH_DEB_VERSION: 2.4.5
         volumes:
             - "${ELASTIC_DATA_PATH}:/usr/share/elasticsearch/data"
-#            - "./logs/elasticsearch:/usr/share/elasticsearch/data"
         ports:
             - 9200:9200
             - 9300:9300
-    redis_6379:
+    redis:
         build:
             context: ./redis/
             dockerfile: ./Dockerfile
@@ -45,30 +44,6 @@ services:
             - "./redis/6379.conf:/usr/local/etc/redis/redis.conf"
             - "${REDIS_DATA_PATH}/6379:/data"
             - "./logs/redis/6379:/var/log"
-    redis_6380:
-        build:
-            context: ./redis/
-            dockerfile: ./Dockerfile
-            args:
-                - PARENT_USER_ID=${PARENT_USER_ID}
-        ports:
-          - "6380:6380"
-        volumes:
-          - "./redis/6380.conf:/usr/local/etc/redis/redis.conf"
-          - "${REDIS_DATA_PATH}/6380:/data"
-          - "./logs/redis/6380:/var/log"
-    redis_6390:
-        build:
-            context: ./redis/
-            dockerfile: ./Dockerfile
-            args:
-                - PARENT_USER_ID=${PARENT_USER_ID}
-        ports:
-          - "6390:6390"
-        volumes:
-          - "./redis/6390.conf:/usr/local/etc/redis/redis.conf"
-          - "${REDIS_DATA_PATH}/6390:/data"
-          - "./logs/redis/6390:/var/log"
     php:
         build:
             context: ./php-fpm/
@@ -77,8 +52,6 @@ services:
                 - PARENT_USER_ID=${PARENT_USER_ID}
         volumes:
             - "${SYMFONY_APP_PATH}:/var/www/symfony"
-#            - "./logs/symfony:/var/www/symfony/app/logs"
-#            - "./data/symfony/sessions:/var/www/symfony/var/sessions"
             - "./php-fpm/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini"
     node:
         build: node
