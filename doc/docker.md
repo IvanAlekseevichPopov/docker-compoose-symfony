@@ -1,10 +1,9 @@
-## Docker installation
-
+### Docker installation(If you have not yet installed docker-compose)
 1. Install docker and docker-compose packages for your OS.
     1. Ubuntu/Debian:
 
     ```bash
-       sudo apt-get install docker docker-compose
+       sudo apt-get install docker docker-compose nmap
     ```
     2. Fedora/Centos:
 
@@ -16,8 +15,7 @@
 (it needs for correct work of docker internal network)
 
     ```bash
-       sudo bash -c 'echo "nameserver 8.8.8.8" >> /etc/resolv.conf'
-       #Just example. Replace 8.8.8.8 with your dns server
+       sudo bash -c 'echo "nameserver REPLACE_WITH_YOUR_DNS_SERVER_IP" >> /etc/resolv.conf'
     ```
     
 3. Add your user to docker group for access to docker commands without sudo:
