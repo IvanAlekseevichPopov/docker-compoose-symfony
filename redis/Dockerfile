@@ -4,10 +4,8 @@ FROM redis:4
 ARG PARENT_USER_ID
 RUN usermod -u $PARENT_USER_ID redis
 
-#Log file
-RUN touch /var/log/redis.log; \
-    chmod 775 /var/log/redis.log; \
-    chown redis:redis /var/log/redis.log
+COPY entrypoint.sh /usr/local/bin/
+ENTRYPOINT ["entrypoint.sh"]
 
-#Redis start
+EXPOSE 6379
 CMD ["redis-server", "/usr/local/etc/redis/redis.conf"]

@@ -41,9 +41,9 @@ services:
         ports:
           - "6379:6379"
         volumes:
-            - "./redis/6379.conf:/usr/local/etc/redis/redis.conf"
+            - "./redis/redis.conf:/usr/local/etc/redis/redis.conf"
             - "${REDIS_DATA_PATH}/6379:/data"
-            - "./logs/redis/6379:/var/log"
+            - "./logs/redis:/var/log"
     php:
         build:
             context: ./php-fpm/
