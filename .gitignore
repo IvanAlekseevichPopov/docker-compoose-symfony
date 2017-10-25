@@ -1,15 +1,16 @@
 .env
 .idea
-/data/db/*
-/data/elasticsearch/*
-/data/redis/*
+/data/*
+/logs/*
 
-/logs/nginx/*
-/logs/mariadb/*
-/logs/redis/*
 /mariadb/conf/*.sql
 
 !/data/elasticsearch/.gitkeep
 !/data/redis/.gitkeep
 !/data/db/.gitkeep
+!/data/trash/.gitkeep
+
 !/logs/mariadb/.gitkeep
+!/logs/nginx/.gitkeep
+!/logs/php/.gitkeep
+!/logs/redis/.gitkeep
